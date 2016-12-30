@@ -1,0 +1,24 @@
+{
+  "name": "exilebot",
+  "version": "1.1.0",
+  "description": "This is a Path of Exile bot for telegram. This bot is designed as a helper for PoE players.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "bot",
+    "telegram",
+    "path of exile"
+  ],
+  "author": "Tutch",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cheerio": "^0.22.0",
+    "express": "^4.14.0",
+    "htmlparser2": "^3.9.2",
+    "node-telegram-bot-api": "^0.25.0",
+    "request": "^2.79.0"
+  }
+}
