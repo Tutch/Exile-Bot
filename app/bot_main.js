@@ -35,6 +35,7 @@ lab - Retrieves last lab layout for given difficulty from Poelab
 resources - Shows a list of helpful links
 unique - Retrieves information and wiki link of unique item name
 wisdom - One of Izaro's many, many quotes
+wiki - Returns closest matching wiki link for given term
 
 
 */
@@ -62,7 +63,7 @@ exileBot.onText(/^\/greetings|^\/greetings@PathOfExileBot$/, function (msg, matc
 // /help
 // Shows bot help
 exileBot.onText(/^\/help|^\/exilehelp@PathOfExileBot (.+)$/, function (msg, match) {
-  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/unique &lt;name&gt;\n/resources\n/wisdom";
+  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/unique &lt;name&gt;\n/resources\n/wiki &lt;term&gt;\n/wisdom";
 
   exileBot.sendMessage(msg.chat.id, message, { parse_mode: "HTML"});
 });
@@ -101,6 +102,14 @@ exileBot.onText(/^\/unique (.+)$|^\/unique@PathOfExileBot (.+)$/, function (msg,
   checkIfItemExists(itemName, msg);
 });
 
+// /wiki term
+// Check for unique item on name.
+exileBot.onText(/^\/wiki (.+)$|^\/wiki@PathOfExileBot (.+)$/, function (msg, match) {
+  var searchTerm = match[1];
+
+  getWikiLink(searchTerm, msg);
+});
+
 // /wisdom
 // Retuns mad wisdom from emperor Izaro, that magnificent bastard
 exileBot.onText(/^\/wisdom$|^\/wisdom@PathOfExileBot$/, function (msg, match) {
@@ -108,7 +117,6 @@ exileBot.onText(/^\/wisdom$|^\/wisdom@PathOfExileBot$/, function (msg, match) {
 
   exileBot.sendMessage(msg.chat.id, message);
 });
-
 
 
 /*
@@ -379,4 +387,38 @@ function getPoelabLayout(postUrl, msg){
     }
   });
 
+}
+
+// Gets url on wiki for given searh term
+function getWikiLink(searchTerm, msg){
+  request.get(gamepediaAPI+searchTerm, function(err,res,body){
+    if(err){
+      console.log("Something went very, very wrong.");
+      exileBot.sendMessage(msg.chat.id, "I'm sorry, but something went wrong when fetching your item. Try again, maybe?");
+    }
+    if(res.statusCode == 200 ){
+      var data = JSON.parse(res.body);
+
+      if(data[1].length === 0){
+        console.log("No item found.");
+        exileBot.sendMessage(msg.chat.id, `I couldn't find anything about ${searchTerm}`);
+      }else{
+
+        var url;
+        var extraMessage = "";
+
+        // Checks if there are more than ony of that term
+        if(data[1].length > 1){
+          url = data[3][0].toString();
+          extraMessage = "There are multiple pages refering to your search term. This is the closest to what you were looking for: ";
+        }else{
+           url = data[3].toString();
+        }
+
+        exileBot.sendMessage(msg.chat.id, extraMessage + url);
+
+      }
+
+    }
+  });
 }
