@@ -11,9 +11,11 @@ If you have any requests or features you want to see implemented, please feel fr
 |:------------|:-------------------------------------------------|
 | /about     | Information about the bot   |
 | /greetings | Replies with one of the masters's greetings
-| /help      |Shows a list of commands
-| /lab       |Retrieves last lab layout for given difficulty from Poelab
+| /help      | Shows a list of commands
+| /lab       | Retrieves last lab layout for given difficulty from Poelab
+| /onsale    | Shows a list of items on sale
 | /resources | Shows a list of helpful links
+| /safelevels| Level range with no penalty
 | /unique    | Retrieves information and wiki link of unique item name
 | /wisdom    | One of Izaro's many, many quotes
 | /wiki      | Returns closest matching wiki link for given term

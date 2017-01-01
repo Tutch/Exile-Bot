@@ -13,7 +13,8 @@ var helpful = require("./helpfulResources");
 
 // Necessary variables
 var poelabURL = "http://www.poelab.com/posts";
-var gamepediaAPI = "http://pathofexile.gamepedia.com/api.php?action=opensearch&search="
+var gamepediaAPI = "http://pathofexile.gamepedia.com/api.php?action=opensearch&search=";
+var specialDealsURL = "https://www.pathofexile.com/shop/category/daily-deals";
 var botToken = "//YOUR BOT TOKEN";
 var Bot = require('node-telegram-bot-api'),
     exileBot = new Bot(botToken, {polling:true});
@@ -32,7 +33,9 @@ about - Information about the bot
 greetings - Replies with one of the masters's greetings
 help - Shows a list of commands
 lab - Retrieves last lab layout for given difficulty from Poelab
+onsale - Shows a list of items on sale
 resources - Shows a list of helpful links
+safelevels - Level range with no penalty
 unique - Retrieves information and wiki link of unique item name
 wisdom - One of Izaro's many, many quotes
 wiki - Returns closest matching wiki link for given term
@@ -63,9 +66,9 @@ exileBot.onText(/^\/greetings|^\/greetings@PathOfExileBot$/, function (msg, matc
 // /help
 // Shows bot help
 exileBot.onText(/^\/help|^\/exilehelp@PathOfExileBot (.+)$/, function (msg, match) {
-  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/unique &lt;name&gt;\n/resources\n/wiki &lt;term&gt;\n/wisdom";
+  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/onsale\n/resources\n/safelevels &lt;levels&gt;\n/unique &lt;name&gt;\n/wiki &lt;term&gt;\n/wisdom";
 
-  exileBot.sendMessage(msg.chat.id, message, { parse_mode: "HTML"});
+  exileBot.sendMessage(msg.chat.id, message, {parse_mode: "HTML"});
 });
 
 // /lab difficulty
@@ -82,6 +85,12 @@ exileBot.onText(/^\/lab (.+)|^\/lab@PathOfExileBot (.+)$/, function (msg, match)
 
 });
 
+// /onsale
+// List of discounted items
+exileBot.onText(/^\/onsale|^\/onsale@PathOfExileBot (.+)$/, function (msg, match) {
+  getDailyDeals(msg);
+});
+
 // /resources
 // Outputs a list of helpful resources
 exileBot.onText(/^\/resources|^\/resources@PathOfExileBot (.+)$/, function (msg, match) {
@@ -92,6 +101,14 @@ exileBot.onText(/^\/resources|^\/resources@PathOfExileBot (.+)$/, function (msg,
   }
 
   exileBot.sendMessage(msg.chat.id, message, { parse_mode: "HTML"});
+});
+
+// /safelevels level
+// Gives safe leveling range for level
+exileBot.onText(/^\/safelevels (.+)$|^\/safelevels@PathOfExileBot (.+)$/, function (msg, match) {
+  var level = match[1];
+
+  getOptimalLevel(level, msg);
 });
 
 // /unique itemName
@@ -394,7 +411,7 @@ function getWikiLink(searchTerm, msg){
   request.get(gamepediaAPI+searchTerm, function(err,res,body){
     if(err){
       console.log("Something went very, very wrong.");
-      exileBot.sendMessage(msg.chat.id, "I'm sorry, but something went wrong when fetching your item. Try again, maybe?");
+      exileBot.sendMessage(msg.chat.id, "I'm sorry, but something went wrong when fetching your link. Try again, maybe?");
     }
     if(res.statusCode == 200 ){
       var data = JSON.parse(res.body);
@@ -421,4 +438,59 @@ function getWikiLink(searchTerm, msg){
 
     }
   });
+}
+
+// Return items on sale
+function getDailyDeals(msg){
+  request.get(specialDealsURL, function(err,res,body){
+    if(err){
+      exileBot.sendMessage(msg.chat.id, "Something went wrong while accessing the shop");
+    }
+    if(res.statusCode == 200 ){
+      var data = res.body;
+      var ch = cheerio.load(body);
+      var filter = ".shopItemBase";
+
+      var responseText = ""
+
+      ch(`${filter}`).each(function(){
+        var target = ch(this);
+        var itemName = target.find('a.name').text();
+        var itemPrice = target.find('div.price').text();
+
+        responseText += `<b>${itemName}</b> is on sale for ${itemPrice} points\n`
+
+        console.log(responseText);
+      })
+
+      responseText += `\n${specialDealsURL}`;
+
+      exileBot.sendMessage(msg.chat.id, responseText, { parse_mode: "HTML"});
+    }
+  });
+}
+
+// Returns experience range
+function getOptimalLevel(level, msg){
+
+  var level;
+
+  if( level = parseInt(level)|| level > 0 || level < 101){
+
+    var safeZone = 3 + Math.floor(parseInt(level)/16);
+    var responseText = "";
+    var minLevel = (level - safeZone < 2) ? 1 : level - safeZone;
+    var maxLevel = (level + safeZone > 100) ? 100 : level + safeZone;
+    //var minTier = (minLevel - 68 > 0) ? minLevel - 68 + 1 : 1;
+    //var maxTier = (maxLevel - 84 > 16) ? maxLevel - 84 + 1 : 1;
+    //  var tiers = maxLevel - level + level - minTier + 1;
+
+    responseText = `At level <b>${level}</b>, you receive no experience penalty from areas level ${minLevel} to ${maxLevel}.\n\n`;
+    responseText += "<i>Reminder: maps go from Tier 1 (68) to Tier 16 (83). Shaper's Realm is area level 84.</i>";
+
+    exileBot.sendMessage(msg.chat.id, responseText, {parse_mode: "HTML"});
+  }else{
+    exileBot.sendMessage(msg.chat.id, "Invalid level");
+  }
+
 }
