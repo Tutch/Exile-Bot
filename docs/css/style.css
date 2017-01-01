@@ -15,13 +15,9 @@ header{
   height: 100%;
   margin: 0 auto;
   text-align: center;
-  padding-top: 4%;
+  padding-top: 3%;
   /*background-color: #663366;*/
   padding-bottom: 2%;
-}
-
-article{
-
 }
 
 header div{
@@ -70,24 +66,30 @@ header h3{
   color: #666666;
 }
 
-#bot-presentation{
+article{
   width: 45%;
   margin: 0 auto;
   margin-top: 2%;
 }
 
-#bot-presentation p{
+@media screen and (max-width: 1200px) {
+  article{
+    width: 80%;
+  }
+}
+
+article p{
   font-weight: 400;
   font-size: 1.4rem;
   margin: 0 auto;
   color: #333333;
 }
 
-#bot-presentation div{
+article div{
     margin-top: 6%;
 }
 
-#bot-presentation h2{
+article h2{
   font-size: 2.0rem;
 }
 
@@ -95,7 +97,7 @@ header h3{
   color: #3399cc;
 }
 
-
 a{
-  color: #3399cc;
+  display: inline;
+  color: #e08b45;
 }
