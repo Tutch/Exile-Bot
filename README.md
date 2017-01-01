@@ -9,7 +9,7 @@ If you have any requests or features you want to see implemented, please feel fr
 
 | Command     | Function                                         
 |:------------|:-------------------------------------------------|
-| /about     | Information about the bot.   |
+| /about     | Information about the bot   |
 | /greetings | Replies with one of the masters's greetings
 | /help      |Shows a list of commands
 | /lab       |Retrieves last lab layout for given difficulty from Poelab
