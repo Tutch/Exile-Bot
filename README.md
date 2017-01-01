@@ -16,6 +16,8 @@ If you have any requests or features you want to see implemented, please feel fr
 | /resources | Shows a list of helpful links
 | /unique    | Retrieves information and wiki link of unique item name
 | /wisdom    | One of Izaro's many, many quotes
+| /wiki      | Returns closest matching wiki link for given term
+
 
 
 
