@@ -1,6 +1,6 @@
 {
   "name": "exilebot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "This is a Path of Exile bot for telegram. This bot is designed as a helper for PoE players.",
   "main": "index.js",
   "scripts": {

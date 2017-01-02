@@ -19,8 +19,7 @@ var botToken = "//YOUR BOT TOKEN";
 var Bot = require('node-telegram-bot-api'),
     exileBot = new Bot(botToken, {polling:true});
 
-    // This bot is using webhook. You might try polling to test.
-    exileBot.setWebHook('somedomain' + exileBot.token); 
+    exileBot.setWebHook(`https://somedomain/${exileBot.token}`);
 
 exports.Bot = exileBot;
 
@@ -57,7 +56,7 @@ exileBot.onText(/^\/greetings|^\/greetings@PathOfExileBot$/, function (msg, matc
   var message = mastersGreets.Hi[Math.floor(Math.random() * mastersGreets.Hi.length)];
 
   var options = {
- reply_to_message_id: msg.message_id
+    reply_to_message_id: msg.message_id
   };
 
   exileBot.sendMessage(msg.chat.id, message, options);
@@ -138,7 +137,18 @@ exileBot.onText(/^\/wisdom$|^\/wisdom@PathOfExileBot$/, function (msg, match) {
 
 /*
 ====================================================
-  METHODS THAT ACTUALLY DO SOMETHING
+  REACTIONS TO CHAT
+====================================================
+*/
+
+// If the user say stuff like "thanks, exile bot!"
+exileBot.onText(/^thanks.*exile.*|^thank you.*exile.*/, function (msg, match) {
+    exileBot.sendMessage(msg.chat.id, `You are welcome, exile.`);
+});
+
+/*
+====================================================
+  COMMAND IMPLEMENTATION
 ====================================================
 */
 
@@ -193,6 +203,8 @@ function checkIfItemExists(itemName, msg){
 // Retrieves item info. Sends image to user.
 // It's quite low quality and takes a while to load.
 // TODO: calculate box size before generating image!
+// This was deemed to slow to be used, but it might be useful
+// for someone, for some reason.
 function getUniqueItemImage(itemName, wikiPage, msg){
 
     // I was having isseus with the window size. Yes, this is a workaround. No, this ain't pretty.
@@ -221,15 +233,15 @@ function getUniqueItemImage(itemName, wikiPage, msg){
 // Retrieves item info. Sends image to user.
 function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
 
-  var url = "https://pathofexile.gamepedia.com/api.php?action=parse&page=" + itemName + "&format=json";
+  var url = `https://pathofexile.gamepedia.com/api.php?action=parse&page=${itemName}&format=json`;
 
   request.get(url, function(err,res,body){
     if(err){
       console.log("Something went very, very wrong.");
       exileBot.sendMessage(msg.chat.id, "I'm sorry, but something went wrong when fetching your item. Try again, maybe?");
     }
-    if(res.statusCode == 200 ){
 
+    if(res.statusCode == 200 ){
       var data = JSON.parse(res.body);
       var filter = '/></a></span></span>';
       var uniqueFilter = '<span class=\\"infobox-page-container\\"><span class=\\"item-box -unique\\">';
@@ -328,7 +340,7 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
       }
 
       // Sends wiki link back to chat
-      exileBot.sendMessage(msg.chat.id, wikiMessage + wikiPage).then(function(){
+      exileBot.sendMessage(msg.chat.id, `${wikiMessage}${wikiPage}`).then(function(){
         // Sends formatted item info back to chat
         exileBot.sendMessage(msg.chat.id, output , { parse_mode: "HTML" });
       });
@@ -432,7 +444,7 @@ function getWikiLink(searchTerm, msg){
            url = data[3].toString();
         }
 
-        exileBot.sendMessage(msg.chat.id, extraMessage + url);
+        exileBot.sendMessage(msg.chat.id, `${extraMessage}${url}`);
 
       }
 
@@ -451,7 +463,7 @@ function getDailyDeals(msg){
       var ch = cheerio.load(body);
       var filter = ".shopItemBase";
 
-      var responseText = ""
+      var responseText;
 
       ch(`${filter}`).each(function(){
         var target = ch(this);
@@ -471,6 +483,7 @@ function getDailyDeals(msg){
 }
 
 // Returns experience range
+// TODO: map tier calculation, maybe?
 function getOptimalLevel(level, msg){
 
   var level;
