@@ -12,14 +12,13 @@ var mastersGreets = require("./greetings");
 var helpful = require("./helpfulResources");
 
 // Necessary variables
-var poelabURL = "http://www.poelab.com/posts";
 var gamepediaAPI = "http://pathofexile.gamepedia.com/api.php?action=opensearch&search=";
-var specialDealsURL = "https://www.pathofexile.com/shop/category/daily-deals";
 var botToken = "//YOUR BOT TOKEN";
 var Bot = require('node-telegram-bot-api'),
     exileBot = new Bot(botToken, {polling:true});
 
-    exileBot.setWebHook(`https://somedomain/${exileBot.token}`);
+    // This bot is using webhook. You might try polling to test.
+    exileBot.setWebHook('somedomain' + exileBot.token); 
 
 exports.Bot = exileBot;
 
@@ -32,6 +31,7 @@ about - Information about the bot
 greetings - Replies with one of the masters's greetings
 help - Shows a list of commands
 lab - Retrieves last lab layout for given difficulty from Poelab
+ladder - Shows a list of top 10 players for given league
 onsale - Shows a list of items on sale
 resources - Shows a list of helpful links
 safelevels - Level range with no penalty
@@ -65,7 +65,7 @@ exileBot.onText(/^\/greetings|^\/greetings@PathOfExileBot$/, function (msg, matc
 // /help
 // Shows bot help
 exileBot.onText(/^\/help|^\/exilehelp@PathOfExileBot (.+)$/, function (msg, match) {
-  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/onsale\n/resources\n/safelevels &lt;levels&gt;\n/unique &lt;name&gt;\n/wiki &lt;term&gt;\n/wisdom";
+  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/ladder &lt;league&gt;\n/onsale\n/resources\n/safelevels &lt;levels&gt;\n/unique &lt;name&gt;\n/wiki &lt;term&gt;\n/wisdom";
 
   exileBot.sendMessage(msg.chat.id, message, {parse_mode: "HTML"});
 });
@@ -82,6 +82,14 @@ exileBot.onText(/^\/lab (.+)|^\/lab@PathOfExileBot (.+)$/, function (msg, match)
     exileBot.sendMessage(msg.chat.id, "Usage: /lab <normal><cruel><merciless><uber>");
   }
 
+});
+
+// /ladder league
+// Shows top 10 players on league
+exileBot.onText(/^\/ladder (.+)|^\/ladder@PathOfExileBot (.+)$/, function (msg, match) {
+  var ladderId = match[1];
+
+  getLadder(ladderId, msg);
 });
 
 // /onsale
@@ -193,7 +201,6 @@ function checkIfItemExists(itemName, msg){
         }
 
         getUniqueItem(itemName, url, msg, multipleOcurrences)
-
       }
 
     }
@@ -203,7 +210,7 @@ function checkIfItemExists(itemName, msg){
 // Retrieves item info. Sends image to user.
 // It's quite low quality and takes a while to load.
 // TODO: calculate box size before generating image!
-// This was deemed to slow to be used, but it might be useful
+// This was deemed too slow to be used, but it might be useful
 // for someone, for some reason.
 function getUniqueItemImage(itemName, wikiPage, msg){
 
@@ -373,7 +380,7 @@ function getPoelabLink(difficulty, msg){
     break;
   }
 
-  request.get(poelabURL, function(err,res,body){
+  request.get('http://www.poelab.com/posts', function(err,res,body){
     if(err){
 
     }
@@ -454,7 +461,7 @@ function getWikiLink(searchTerm, msg){
 
 // Return items on sale
 function getDailyDeals(msg){
-  request.get(specialDealsURL, function(err,res,body){
+  request.get('https://www.pathofexile.com/shop/category/daily-deals', function(err,res,body){
     if(err){
       exileBot.sendMessage(msg.chat.id, "Something went wrong while accessing the shop");
     }
@@ -506,4 +513,70 @@ function getOptimalLevel(level, msg){
     exileBot.sendMessage(msg.chat.id, "Invalid level");
   }
 
+}
+
+// Gets top 10 for some given league
+function getLadder(ladderId, msg){
+  // Get league list, first of all
+  getLeagueList(function(leagueNames){
+
+    // Messy ES2015 check to see if ladderId is a valid league
+    if (leagueNames.findIndex(item => ladderId.toLowerCase() === item.toLowerCase()) < 0) {
+      var responseText = "<b>Those are valid leagues: </b>\n";
+
+      leagueNames.forEach(name => {
+        responseText += `${name}\n`;
+      });
+
+      exileBot.sendMessage(msg.chat.id, responseText, {parse_mode: "HTML"});
+      return;
+    }else{
+      // Get top 10
+      request.get(`http://api.pathofexile.com/ladders/${ladderId}?limit=10`, function(err,res,body){
+        if(err){
+          exileBot.sendMessage(msg.chat.id, "Something went wrong while accessing the ladder you wanted.");
+        }
+
+        if(res.statusCode == 200 ){
+          var data = JSON.parse(res.body);
+
+          var responseText = `<b>Showing top 10 players in ${ladderId} league:</b>\n`;
+          var char = {};
+
+          data.entries.forEach(ladderEntry => {
+            char = ladderEntry.character;
+
+            responseText += `<b>${ladderEntry.rank}.</b> ${char.name}(${ladderEntry.account.challenges.total}) - lvl ${char.level} ${char.class}\n`;
+          });
+
+          exileBot.sendMessage(msg.chat.id, responseText, {parse_mode: "HTML"});
+        }
+
+      });
+    } //else
+
+  });
+}
+
+// Returns main league names
+function getLeagueList(callback){
+  request.get('http://api.pathofexile.com/leagues?type=main', function(err,res,body){
+    if(err){
+      return [];
+    }
+
+    if(res.statusCode == 200 ){
+      var data = JSON.parse(res.body);
+      var leagueNames = [];
+
+      data.forEach(league => {
+        leagueNames.push(league.id);
+      });
+
+      if (typeof callback === "function") {
+        callback(leagueNames);
+      }
+
+    }
+  });
 }
