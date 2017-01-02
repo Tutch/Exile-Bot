@@ -463,7 +463,7 @@ function getDailyDeals(msg){
       var ch = cheerio.load(body);
       var filter = ".shopItemBase";
 
-      var responseText;
+      var responseText = "";
 
       ch(`${filter}`).each(function(){
         var target = ch(this);
