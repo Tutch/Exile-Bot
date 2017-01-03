@@ -18,7 +18,7 @@ var Bot = require('node-telegram-bot-api'),
     exileBot = new Bot(botToken, {polling:true});
 
     // This bot is using webhook. You might try polling to test.
-    exileBot.setWebHook('somedomain' + exileBot.token); 
+    exileBot.setWebHook('somedomain' + exileBot.token);
 
 exports.Bot = exileBot;
 
@@ -482,7 +482,7 @@ function getDailyDeals(msg){
         console.log(responseText);
       })
 
-      responseText += `\n${specialDealsURL}`;
+      responseText += `\nhttps://www.pathofexile.com/shop/category/daily-deals`;
 
       exileBot.sendMessage(msg.chat.id, responseText, { parse_mode: "HTML"});
     }
