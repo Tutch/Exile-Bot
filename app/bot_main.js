@@ -22,6 +22,7 @@ var Bot = require('node-telegram-bot-api'),
 
 exports.Bot = exileBot;
 
+
 /*
 ====================================================
   BOT COMMANDS
@@ -44,7 +45,7 @@ wiki - Returns closest matching wiki link for given term
 
 // /about
 // Information about the bot
-exileBot.onText(/^\/about|^\/about@PathOfExileBot$/, function (msg, match) {
+exileBot.onText(/^\/(about|about@PathOfExileBot)$/, function (msg, match) {
   var message = "<b>About ExileBot:</b>\nBlip blop may the goddess of justice watch over you.\n\nIf you want to request a feature or report a nasty bug, shoot an email to my creator at lucasmapurunga@gmail.com.\n\nMy code is on https://github.com/Tutch/Exile-Bot.";
 
   exileBot.sendMessage(msg.chat.id, message, { parse_mode: "HTML"});
@@ -52,7 +53,7 @@ exileBot.onText(/^\/about|^\/about@PathOfExileBot$/, function (msg, match) {
 
 // /greetings
 // Replies with one of the masters' greetings
-exileBot.onText(/^\/greetings|^\/greetings@PathOfExileBot$/, function (msg, match) {
+exileBot.onText(/^\/(greetings|greetings@PathOfExileBot)$/, function (msg, match) {
   var message = mastersGreets.Hi[Math.floor(Math.random() * mastersGreets.Hi.length)];
 
   var options = {
@@ -64,7 +65,7 @@ exileBot.onText(/^\/greetings|^\/greetings@PathOfExileBot$/, function (msg, matc
 
 // /help
 // Shows bot help
-exileBot.onText(/^\/help|^\/exilehelp@PathOfExileBot (.+)$/, function (msg, match) {
+exileBot.onText(/^\/(help|help@PathOfExileBot)$/, function (msg, match) {
   var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/ladder &lt;league&gt;\n/onsale\n/resources\n/safelevels &lt;levels&gt;\n/unique &lt;name&gt;\n/wiki &lt;term&gt;\n/wisdom";
 
   exileBot.sendMessage(msg.chat.id, message, {parse_mode: "HTML"});
@@ -72,8 +73,8 @@ exileBot.onText(/^\/help|^\/exilehelp@PathOfExileBot (.+)$/, function (msg, matc
 
 // /lab difficulty
 // Shows bot help
-exileBot.onText(/^\/lab (.+)|^\/lab@PathOfExileBot (.+)$/, function (msg, match) {
-  var difficulty = match[1];
+exileBot.onText(/^\/(lab|lab@PathOfExileBot) (.+)$/, function (msg, match) {
+  var difficulty = match[2];
 
   if (['normal', 'cruel', 'merciless', 'uber'].indexOf(difficulty) >= 0) {
     exileBot.sendMessage(msg.chat.id, "I'm fetching today's layout for you.\nPlease wait a little bit, this can take a while.");
@@ -86,21 +87,21 @@ exileBot.onText(/^\/lab (.+)|^\/lab@PathOfExileBot (.+)$/, function (msg, match)
 
 // /ladder league
 // Shows top 10 players on league
-exileBot.onText(/^\/ladder (.+)|^\/ladder@PathOfExileBot (.+)$/, function (msg, match) {
-  var ladderId = match[1];
+exileBot.onText(/^\/(ladder|ladder@PathOfExileBot) (.+)$/, function (msg, match) {
+  var ladderId = match[2];
 
   getLadder(ladderId, msg);
 });
 
 // /onsale
 // List of discounted items
-exileBot.onText(/^\/onsale|^\/onsale@PathOfExileBot (.+)$/, function (msg, match) {
+exileBot.onText(/^\/(onsale|onsale@PathOfExileBot)$/, function (msg, match) {
   getDailyDeals(msg);
 });
 
 // /resources
 // Outputs a list of helpful resources
-exileBot.onText(/^\/resources|^\/resources@PathOfExileBot (.+)$/, function (msg, match) {
+exileBot.onText(/^\/(resources|resources@PathOfExileBot)$/, function (msg, match) {
   var message = "";
 
   for(var i=0; i<helpful.Resources.length; i++){
@@ -112,31 +113,31 @@ exileBot.onText(/^\/resources|^\/resources@PathOfExileBot (.+)$/, function (msg,
 
 // /safelevels level
 // Gives safe leveling range for level
-exileBot.onText(/^\/safelevels (.+)$|^\/safelevels@PathOfExileBot (.+)$/, function (msg, match) {
-  var level = match[1];
+exileBot.onText(/^\/(safelevels|safelevels@PathOfExileBot) (.+)$/, function (msg, match) {
+  var level = match[2];
 
   getOptimalLevel(level, msg);
 });
 
 // /unique itemName
 // Check for unique item on name.
-exileBot.onText(/^\/unique (.+)$|^\/unique@PathOfExileBot (.+)$/, function (msg, match) {
-  var itemName = match[1];
+exileBot.onText(/^\/(unique|unique@PathOfExileBot) (.+)$/, function (msg, match) {
+  var itemName = match[2];
 
   checkIfItemExists(itemName, msg);
 });
 
 // /wiki term
 // Check for unique item on name.
-exileBot.onText(/^\/wiki (.+)$|^\/wiki@PathOfExileBot (.+)$/, function (msg, match) {
-  var searchTerm = match[1];
+exileBot.onText(/^\/(wiki|wiki@PathOfExileBot) (.+)$/, function (msg, match) {
+  var searchTerm = match[2];
 
   getWikiLink(searchTerm, msg);
 });
 
 // /wisdom
 // Retuns mad wisdom from emperor Izaro, that magnificent bastard
-exileBot.onText(/^\/wisdom$|^\/wisdom@PathOfExileBot$/, function (msg, match) {
+exileBot.onText(/^\/(wisdom|wisdom@PathOfExileBot)$/, function (msg, match) {
   var message = izarosWisdom.Quotes[Math.floor(Math.random() * izarosWisdom.Quotes.length)];
 
   exileBot.sendMessage(msg.chat.id, message);
@@ -382,7 +383,7 @@ function getPoelabLink(difficulty, msg){
 
   request.get('http://www.poelab.com/posts', function(err,res,body){
     if(err){
-
+      exileBot.sendMessage(msg.chat.id, "Something went wrong. There might be a problem with PoeLab or with me. Try again later!");
     }
 
     if(res.statusCode == 200 ){
@@ -406,7 +407,7 @@ function getPoelabLayout(postUrl, msg){
 
   request.get(postUrl, function(err,res,body){
     if(err){
-      // oops
+      exileBot.sendMessage(msg.chat.id, "Something went wrong. There might be a problem with PoeLab or with me. Try again later!");
     }
 
     if(res.statusCode == 200 ){
@@ -414,11 +415,19 @@ function getPoelabLayout(postUrl, msg){
       var image = cheerio.load(body);
       var filter = ".story";
 
-      image(`${filter} a`).each(function(){
-        var target = image(this);
-        var targetImage = target.attr("href");
+      console.log(image);
 
-        exileBot.sendPhoto(msg.chat.id, targetImage);
+      image(`${filter} p > img`).each(function(){
+        var target = image(this);
+        var targetImage = target.attr("src");
+
+        console.log(targetImage);
+
+        // As of 6/3/2017, PoeLab is using discord cdn to host images.
+        // Telegram Bot API for NodeJs does not support https
+        //exileBot.sendPhoto(msg.chat.id, targetImage);
+
+        exileBot.sendMessage(msg.chat.id, targetImage);
       })
     }
   });
