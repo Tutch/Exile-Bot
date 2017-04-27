@@ -1,14 +1,15 @@
 // Ye old web server
+var config = require("./config");
 var express = require('express');
 var packageInfo = require('../package.json');
-var exileBot = require("./bot_main");
 var bodyParser = require('body-parser');
+var path = require('path');
 var app = express();
 
 app.use(bodyParser.json());
 
-app.post('/' + exileBot.Bot.token, function (req, res) {
-  exileBot.Bot.processUpdate(req.body);
+app.post('/' + config.bot.token, function (req, res) {
+  config.bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
