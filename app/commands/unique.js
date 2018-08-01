@@ -1,10 +1,11 @@
-// Variables from Configuration file
-var config = require("../config.js");
+'use strict';
 
-var gamepediaAPI = config.gamepediaAPI;
-var exileBot = config.exileBot;
-var htmlparser = config.htmlparser;
-var request = config.request;
+// Variables from Configuration file
+const config = require("../config.js");
+const gamepediaAPI = config.gamepediaAPI;
+const exileBot = config.exileBot;
+const htmlparser = config.htmlparser;
+const request = config.request;
 
 // Checks if this unique item exists on Path of Exile wiki
 function checkIfItemExists(itemName, msg){
@@ -13,15 +14,15 @@ function checkIfItemExists(itemName, msg){
       exileBot.sendMessage(msg.chat.id, "I'm sorry, but something went wrong when fetching your item. Try again, maybe?");
     }
     if(res.statusCode == 200 ){
-      var data = JSON.parse(res.body);
+      let data = JSON.parse(res.body);
 
       if(data[1].length === 0){
         exileBot.sendMessage(msg.chat.id, "I couldn't find it. Are you sure the item name is correct?");
       }else{
 
-        var itemName;
-        var url;
-        var multipleOcurrences = false;
+        let itemName;
+        let url;
+        let multipleOcurrences = false;
 
         // Checks if there are more than ony of that item.
         // Vessel of Vinktar is infamous for that. Thanks, GGG.
@@ -44,7 +45,6 @@ function checkIfItemExists(itemName, msg){
 
         getUniqueItem(itemName, url, msg, multipleOcurrences)
       }
-
     }
   });
 }
@@ -57,7 +57,7 @@ function checkIfItemExists(itemName, msg){
 function getUniqueItemImage(itemName, wikiPage, msg){
 
     // I was having isseus with the window size. Yes, this is a workaround. No, this ain't pretty.
-    var options = {
+    let options = {
       siteType: 'url',
       windowSize: { width: 1024, height: 920 },
       shotSize: { width: 800, height: 920 },
@@ -66,7 +66,7 @@ function getUniqueItemImage(itemName, wikiPage, msg){
       quality: 100
     }
 
-    var name = itemName + '__' + msg.chat.id + '.jpg';
+    let name = itemName + '__' + msg.chat.id + '.jpg';
 
     webshot(wikiPage, name, options, function(err) {
       exileBot.sendPhoto(msg.chat.id, name).then(function(){
@@ -75,44 +75,40 @@ function getUniqueItemImage(itemName, wikiPage, msg){
       });
 
     });
-
 }
-
 
 // Retrieves item info. Sends image to user.
 function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
 
-  var url = `https://pathofexile.gamepedia.com/api.php?action=parse&page=${itemName}&format=json`;
+  let url = `https://pathofexile.gamepedia.com/api.php?action=parse&page=${itemName}&format=json`;
 
   request.get(url, function(err,res,body){
     if(err){
-      console.log("Something went very, very wrong.");
       exileBot.sendMessage(msg.chat.id, "I'm sorry, but something went wrong when fetching your item. Try again, maybe?");
     }
 
     if(res.statusCode == 200 ){
-      var data = JSON.parse(res.body);
-      var filter = '/></a></span></span>';
-      var uniqueFilter = '<span class=\\"infobox-page-container\\"><span class=\\"item-box -unique\\">';
-      var dom = data.parse.text["*"];
-      var begin = dom.search(filter);
-      dom = dom.substring(0,begin + filter.length);
+      let data = JSON.parse(res.body);
+      let filter = '</a></span><span class=\\"item-box -unique\\"';
+      let uniqueFilter = '<span class=\\"infobox-page-container\\"><span class=\\"item-box -unique\\">';
+      let dom = data.parse.text['*'];
+      let begin = dom.search(filter);
+      dom = dom.substring(0,begin + filter.length - 1);
 
       // Searches to see if the infobox has the -unique class.
       // If it doesn't, the item isn't unique, so...
-      var isUnique = dom.search(uniqueFilter);
+      let isUnique = dom.search(uniqueFilter);
 
       if(isUnique < 0){
         exileBot.sendMessage(msg.chat.id, "The item you searched for isn't Unique.");
         return;
       }
 
-
-      var output = "";
-      var currentAtt = "";
+      let output = "";
+      let currentAtt = "";
 
       // Parse HTML to search for tags
-      var parser = new htmlparser.Parser({
+      let parser = new htmlparser.Parser({
           onopentag: function(name, attribs){
               currentAtt = attribs.class;
 
@@ -132,7 +128,7 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
                 break;
 
                 case "group -textwrap tc -flavour":
-                output += "\n\n<i>";
+                output += "\n<i>";
                 break;
 
                 case "header -double":
@@ -147,16 +143,20 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
                 output += "\n( ";
                 break;
               }
-
           },
           ontext: function(text){
-
               if(currentAtt === "group"){
                 output += "\n\n";
               }
 
+              // Text out of tags (why people do that?) sometimes have blank spaces
+              // that mess with formatting. Biggest offender is the flavor text.
+              if(currentAtt === undefined) {
+                text = text.trim();
+              }
+              
               output += text;
-
+              
               // Closing bold for the item name
               if(currentAtt === "header -double"){
                 output += "</b>";
@@ -165,23 +165,19 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
               if(currentAtt === "group -textwrap tc -help"){
                 output += " )";
               }
-
-
           },
           onclosetag: function(tagname){
               if(tagname === "span"){
                 output += "\n";
               }
-
           }
       }, {decodeEntities: true});
       parser.write(dom);
       parser.end();
 
       output += "</i>";
-      //console.log(output);
 
-      var wikiMessage = "";
+      let wikiMessage = "";
 
       if(multipleOcurrences){
         wikiMessage = "There is more than one version of the item you are searching for.\n" +
@@ -193,7 +189,6 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
         // Sends formatted item info back to chat
         exileBot.sendMessage(msg.chat.id, output , { parse_mode: "HTML" });
       });
-
     }
   });
 }

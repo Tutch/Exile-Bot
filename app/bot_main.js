@@ -1,19 +1,21 @@
+'use strict';
+
 // Commands - Refer to each file for its implementation
-var izarosWisdom = require('./commands/izaros_wisdom');
-var mastersGreets = require('./commands/greetings');
-var helpful = require('./commands/helpful_resources');
-var uniqueItem = require('./commands/unique');
-var labLayout = require('./commands/lab_layout');
-var wikiArticle = require('./commands/wiki');
-var dailyDeals = require('./commands/daily_deals.js');
-var ladderRanking = require('./commands/ladder_ranking.js');
-var safeLevels = require('./commands/safe_levels.js');
+const izarosWisdom = require('./commands/izaros_wisdom');
+const mastersGreets = require('./commands/greetings');
+const helpful = require('./commands/helpful_resources');
+const uniqueItem = require('./commands/unique');
+const labLayout = require('./commands/lab_layout');
+const wikiArticle = require('./commands/wiki');
+const dailyDeals = require('./commands/daily_deals.js');
+const ladderRanking = require('./commands/ladder_ranking.js');
+const safeLevels = require('./commands/safe_levels.js');
 
 // Variables from Configuration file
-var config = require('./config.js');
+const config = require('./config.js');
 
-var gamepediaAPI = config.gamepediaAPI;
-var exileBot = config.exileBot;
+let gamepediaAPI = config.gamepediaAPI;
+let exileBot = config.exileBot;
 
 /*
 ====================================================
@@ -45,9 +47,9 @@ exileBot.onText(/^\/(about|about@PathOfExileBot)$/, function (msg, match) {
 // /greetings
 // Replies with one of the masters' greetings
 exileBot.onText(/^\/(greetings|greetings@PathOfExileBot)$/, function (msg, match) {
-  var message = mastersGreets.Hi[Math.floor(Math.random() * mastersGreets.Hi.length)];
+  let message = mastersGreets.Hi[Math.floor(Math.random() * mastersGreets.Hi.length)];
 
-  var options = {
+  let options = {
     reply_to_message_id: msg.message_id
   };
 
@@ -57,7 +59,7 @@ exileBot.onText(/^\/(greetings|greetings@PathOfExileBot)$/, function (msg, match
 // /help
 // Shows bot help
 exileBot.onText(/^\/(help|help@PathOfExileBot)$/, function (msg, match) {
-  var message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/ladder &lt;league&gt;\n/onsale\n/resources\n/safelevels &lt;levels&gt;\n/unique &lt;name&gt;\n/wiki &lt;term&gt;\n/wisdom";
+  let message = "<b>Available Commands:</b>\n/about\n/greetings\n/lab &lt;difficulty&gt;\n/ladder &lt;league&gt;\n/onsale\n/resources\n/safelevels &lt;levels&gt;\n/unique &lt;name&gt;\n/wiki &lt;term&gt;\n/wisdom";
 
   exileBot.sendMessage(msg.chat.id, message, {parse_mode: "HTML"});
 });
@@ -65,7 +67,7 @@ exileBot.onText(/^\/(help|help@PathOfExileBot)$/, function (msg, match) {
 // /lab difficulty
 // Shows bot help
 exileBot.onText(/^\/(lab|lab@PathOfExileBot) (.+)$/, function (msg, match) {
-  var difficulty = match[2];
+  let difficulty = match[2];
 
   if (['normal', 'cruel', 'merciless', 'uber'].indexOf(difficulty) >= 0) {
     exileBot.sendMessage(msg.chat.id, "I'm fetching today's layout for you.\nPlease wait a little bit, this can take a while.");
@@ -80,7 +82,7 @@ exileBot.onText(/^\/(lab|lab@PathOfExileBot) (.+)$/, function (msg, match) {
 // /ladder league
 // Shows top 10 players on league
 exileBot.onText(/^\/(ladder|ladder@PathOfExileBot) (.+)$/, function (msg, match) {
-  var ladderId = match[2];
+  let ladderId = match[2];
 
   ladderRanking.Ladder(ladderId, msg);
 });
@@ -94,9 +96,9 @@ exileBot.onText(/^\/(onsale|onsale@PathOfExileBot)$/, function (msg, match) {
 // /resources
 // Outputs a list of helpful resources
 exileBot.onText(/^\/(resources|resources@PathOfExileBot)$/, function (msg, match) {
-  var message = "";
+  let message = "";
 
-  for(var i=0; i<helpful.Resources.length; i++){
+  for(let i=0; i<helpful.Resources.length; i++){
     message += `<b>${helpful.Resources[i].name}</b>\n<i>${helpful.Resources[i].desc}</i>\n${helpful.Resources[i].url}\n\n`;
   }
 
@@ -106,7 +108,7 @@ exileBot.onText(/^\/(resources|resources@PathOfExileBot)$/, function (msg, match
 // /safelevels level
 // Gives safe leveling range for level
 exileBot.onText(/^\/(safelevels|safelevels@PathOfExileBot) (.+)$/, function (msg, match) {
-  var level = match[2];
+  let level = match[2];
 
   safeLevels.Optimal(level, msg);
 });
@@ -114,7 +116,7 @@ exileBot.onText(/^\/(safelevels|safelevels@PathOfExileBot) (.+)$/, function (msg
 // /unique itemName
 // Check for unique item on name.
 exileBot.onText(/^\/(unique|unique@PathOfExileBot) (.+)$/, function (msg, match) {
-  var itemName = match[2];
+  let itemName = match[2];
 
   uniqueItem.Unique(itemName, msg);
 });
@@ -122,7 +124,7 @@ exileBot.onText(/^\/(unique|unique@PathOfExileBot) (.+)$/, function (msg, match)
 // /wiki term
 // Check for unique item on name.
 exileBot.onText(/^\/(wiki|wiki@PathOfExileBot) (.+)$/, function (msg, match) {
-  var searchTerm = match[2];
+  let searchTerm = match[2];
 
   wikiArticle.Wiki(searchTerm, msg);
 });
@@ -130,7 +132,7 @@ exileBot.onText(/^\/(wiki|wiki@PathOfExileBot) (.+)$/, function (msg, match) {
 // /wisdom
 // Retuns mad wisdom from emperor Izaro, that magnificent bastard
 exileBot.onText(/^\/(wisdom|wisdom@PathOfExileBot)$/, function (msg, match) {
-  var message = izarosWisdom.Quotes[Math.floor(Math.random() * izarosWisdom.Quotes.length)];
+  let message = izarosWisdom.Quotes[Math.floor(Math.random() * izarosWisdom.Quotes.length)];
 
   exileBot.sendMessage(msg.chat.id, message);
 });

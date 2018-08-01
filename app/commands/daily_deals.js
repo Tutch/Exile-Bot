@@ -1,10 +1,11 @@
-// Variables from Configuration file
-var config = require("../config.js");
+'use strict';
 
-var gamepediaAPI = config.gamepediaAPI;
-var exileBot = config.exileBot;
-var cheerio = config.cheerio;
-var request = config.request;
+// Variables from Configuration file
+const config = require("../config.js");
+const gamepediaAPI = config.gamepediaAPI;
+const exileBot = config.exileBot;
+const cheerio = config.cheerio;
+const request = config.request;
 
 // Return items on sale
 function getDailyDeals(msg){
@@ -13,16 +14,16 @@ function getDailyDeals(msg){
       exileBot.sendMessage(msg.chat.id, "Something went wrong while accessing the shop");
     }
     if(res.statusCode == 200 ){
-      var data = res.body;
-      var ch = cheerio.load(body);
-      var filter = ".shopItemBase";
+      let data = res.body;
+      let ch = cheerio.load(body);
+      let filter = ".shopItemBase";
 
-      var responseText = "";
+      let responseText = "";
 
       ch(`${filter}`).each(function(){
-        var target = ch(this);
-        var itemName = target.find('a.name').text();
-        var itemPrice = target.find('div.price').text();
+        let target = ch(this);
+        let itemName = target.find('a.name').text();
+        let itemPrice = target.find('div.price').text();
 
         responseText += `<b>${itemName}</b> is on sale for ${itemPrice} points\n`
       })

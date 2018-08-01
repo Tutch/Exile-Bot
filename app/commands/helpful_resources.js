@@ -1,4 +1,4 @@
-var linksList = [
+const linksList = [
     {
       name: 'Official Forum',
       desc: 'Official game forum',

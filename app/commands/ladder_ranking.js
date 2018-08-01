@@ -1,19 +1,18 @@
 // Variables from Configuration file
-var config = require("../config.js");
+const config = require("../config.js");
 
-var gamepediaAPI = config.gamepediaAPI;
-var exileBot = config.exileBot;
-var htmlparser = config.htmlparser;
-var request = config.request;
+const gamepediaAPI = config.gamepediaAPI;
+const exileBot = config.exileBot;
+const htmlparser = config.htmlparser;
+const request = config.request;
 
 // Gets top 10 for some given league
 function getLadder(ladderId, msg){
   // Get league list, first of all
   getLeagueList(function(leagueNames){
-
     // Messy ES2015 check to see if ladderId is a valid league
     if (leagueNames.findIndex(item => ladderId.toLowerCase() === item.toLowerCase()) < 0) {
-      var responseText = "<b>Current Leagues: </b>\n";
+      let responseText = "<b>Current Leagues: </b>\n";
 
       leagueNames.forEach(name => {
         responseText += `${name}\n`;
@@ -29,10 +28,10 @@ function getLadder(ladderId, msg){
         }
 
         if(res.statusCode == 200 ){
-          var data = JSON.parse(res.body);
+          let data = JSON.parse(res.body);
 
-          var responseText = `<b>Showing top 10 players in ${ladderId} league:</b>\n`;
-          var char = {};
+          let responseText = `<b>Showing top 10 players in ${ladderId} league:</b>\n`;
+          let char = {};
 
           data.entries.forEach(ladderEntry => {
             char = ladderEntry.character;
@@ -45,7 +44,6 @@ function getLadder(ladderId, msg){
 
       });
     } //else
-
   });
 }
 
@@ -57,8 +55,8 @@ function getLeagueList(callback){
     }
 
     if(res.statusCode == 200 ){
-      var data = JSON.parse(res.body);
-      var leagueNames = [];
+      let data = JSON.parse(res.body);
+      let leagueNames = [];
 
       data.forEach(league => {
         leagueNames.push(league.id);
@@ -67,7 +65,6 @@ function getLeagueList(callback){
       if (typeof callback === "function") {
         callback(leagueNames);
       }
-
     }
   });
 }

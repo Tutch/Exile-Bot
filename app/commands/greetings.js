@@ -1,4 +1,4 @@
-var greetings = [
+const greetings = [
   "How are your maps?",
   "Glad you made it back",
   "Need a map?",
