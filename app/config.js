@@ -17,7 +17,7 @@ let Bot = require('node-telegram-bot-api'),
     // Your server
     // You can also run the bot locally by commenting the line below and
     // using npm start. Note you will still need a valid bot.
-    exileBot.setWebHook(`https://exilebot.herokuapp.com/${exileBot.token}`);
+    exileBot.setWebHook(`http://someserver/${exileBot.token}`);
 
 module.exports = {
   gamepediaAPI : gamepediaSearch,

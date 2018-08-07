@@ -55,7 +55,6 @@ function checkIfItemExists(itemName, msg){
 // This was deemed too slow to be used, but it might be useful
 // for someone, for some reason.
 function getUniqueItemImage(itemName, wikiPage, msg){
-
     // I was having isseus with the window size. Yes, this is a workaround. No, this ain't pretty.
     let options = {
       siteType: 'url',
@@ -79,7 +78,6 @@ function getUniqueItemImage(itemName, wikiPage, msg){
 
 // Retrieves item info. Sends image to user.
 function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
-
   let url = `https://pathofexile.gamepedia.com/api.php?action=parse&page=${itemName}&format=json`;
 
   request.get(url, function(err,res,body){
@@ -150,9 +148,10 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
               }
 
               // Text out of tags (why people do that?) sometimes have blank spaces
-              // that mess with formatting. Biggest offender is the flavor text.
+              // that mess with formatting. Biggest offender is the flavor text
+              // for some items, as well as things that are in links (like Cold Damage)
               if(currentAtt === undefined) {
-                text = text.trim();
+                text = text.trim() + ' ';
               }
               
               output += text;
