@@ -90,7 +90,9 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
       let filter = '</a></span><span class=\\"item-box -unique\\"';
       let uniqueFilter = '<span class=\\"infobox-page-container\\"><span class=\\"item-box -unique\\">';
       let dom = data.parse.text['*'];
+
       let begin = dom.search(filter);
+
       dom = dom.substring(0,begin + filter.length - 1);
 
       // Searches to see if the infobox has the -unique class.
@@ -104,6 +106,8 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
 
       let output = "";
       let currentAtt = "";
+
+      console.log(dom);
 
       // Parse HTML to search for tags
       let parser = new htmlparser.Parser({
@@ -125,7 +129,7 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
                 output += "<b>";
                 break;
 
-                case "group -textwrap tc -flavour":
+                case "group tc -flavour":
                 output += "\n<i>";
                 break;
 
@@ -182,6 +186,8 @@ function getUniqueItem(itemName, wikiPage, msg, multipleOcurrences){
         wikiMessage = "There is more than one version of the item you are searching for.\n" +
         "This is one of them, but you should check wiki for others.\n\n"
       }
+
+      console.log(output);
 
       // Sends wiki link back to chat
       exileBot.sendMessage(msg.chat.id, `${wikiMessage}${wikiPage}`).then(function(){

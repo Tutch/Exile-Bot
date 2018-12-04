@@ -18,7 +18,7 @@ function extractWikiText(searchTerm, msg) {
       
       let data = res.body;
       let ch = cheerio.load(body);
-      let children = ch('#mw-content-text').children();
+      let children = ch('#mw-content-text .mw-parser-output').children();
       
       let allowedTags = ['span','h2','p','ul'];
       let forbiddenClasses = ['infobox-page-container'];
@@ -36,10 +36,10 @@ function extractWikiText(searchTerm, msg) {
         let chElem = ch(elem);
         let tagName = chElem[0].tagName;
         let className = chElem.attr('class');
-        
+
         if(allowedTags.includes(tagName) && 
            !forbiddenClasses.includes(className)) {
-            
+
             chElem.find('.c-item-hoverbox__display').remove();
             let text = chElem.text().trim();
           

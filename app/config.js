@@ -9,7 +9,7 @@ const cheerio = require('cheerio');
 const gamepediaSearch = "http://pathofexile.gamepedia.com/api.php?action=opensearch&search=";
 
 // Don't forget to use your own bot token
-var botToken = '// Token';
+var botToken = '// TOken';
 
 let Bot = require('node-telegram-bot-api'),
     exileBot = new Bot(botToken, {polling:true});
